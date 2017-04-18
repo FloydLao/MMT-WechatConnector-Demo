@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:wechat="http://www.mulesoft.org/schema/mule/wechat" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wechat http://www.mulesoft.org/schema/mule/wechat/current/mule-wechat.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="80" doc:name="HTTP Listener Configuration"/>
+    <wechat:config-wechat name="Wechat__Configuration" appId="wxfe5a12752cf1a533" appSecret="53d5315df2cc1da8dec0a4a19505d9af" token="weiphp" doc:name="Wechat: Configuration" selfManageAccessToken="true"/>
+    <http:request-config name="HTTP_Request_Configuration" protocol="HTTPS" host="api.weixin.qq.com" port="443" doc:name="HTTP Request Configuration"/>
+    <flow name="wechat-autoReplyEncryptedMessages">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/msg" doc:name="HTTP"/>
+        <choice doc:name="Check &quot;echostr&quot;">
+            <when expression="#[message.inboundProperties.'http.request.uri'.contains(&quot;echostr&quot;)]">
+                <wechat:verify-url config-ref="Wechat__Configuration" doc:name="Wechat verifyUrl"/>
+                <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+            </when>
+            <otherwise>
+                <wechat:message-decryption config-ref="Wechat__Configuration" doc:name="Wechat messageDecryption" encodingAesKey="6n6F6pYqpgLwvsn6CIvgfuR1SESzwEjzFWSX2BzXtAS" />
+                <logger message="#[payload]#" level="INFO" doc:name="Keyword Matching"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+---
+{
+	xml: {
+		ToUserName: "oU1fjv8UyBAxWqlGAExjW_8HHPlU" as :cdata,
+		FromUserName: "gh_8aec0d8afbd1" as :cdata,
+		CreateTime: 1489683323,
+		MsgType: "text" as :cdata,
+		Content: "Hello World!" as :cdata,
+		FuncFlag: 0
+	}
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <wechat:message-encrytion config-ref="Wechat__Configuration" encodingAesKey="6n6F6pYqpgLwvsn6CIvgfuR1SESzwEjzFWSX2BzXtAS" doc:name="Wechat messageEncrytion"/>
+                <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="wechat-openIdListBroadcastText">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/broadcast" doc:name="HTTP"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	touser: [
+		"oU1fjv8UyBAxWqlGAExjW_8HHPlU",
+		"oU1fjv8UyBAxWqlGAExjW_8HHPlU"
+	]
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <wechat:open-id-list-broadcast-text config-ref="Wechat__Configuration" ApiName="OpenIDListBroadcastText" content="TestContent" doc:name="Wechat openIdListBroadcastText"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="wechat-uploadImageFile">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/file" doc:name="HTTP"/>
+        <wechat:upload-voice-file config-ref="Wechat__Configuration" doc:name="Wechat uploadImageFile" accessToken="#[common.CustomClass.getToken()]"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="wechat-getAccessToken">
+        <wechat:get-access-token config-ref="Wechat__Configuration"  doc:name="Wechat getAccessToken"/>
+        <set-payload value="#[common.CustomClass.setToken(payload.access_token)]" doc:name="Java Set Access Token"/>
+        <logger message="#[common.CustomClass.getToken()]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="wechat-getUserProfile">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/profile" doc:name="HTTP"/>
+        <wechat:get-user-profile config-ref="Wechat__Configuration" openId="oU1fjv6xniBQRFYJN-v32bXyaAoU" lang="zh_CN" doc:name="Wechat getUserProfile"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="wechat-nameRemark">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/remark" doc:name="HTTP"/>
+        <wechat:name-remark config-ref="Wechat__Configuration" openId="oU1fjv6xniBQRFYJN-v32bXyaAoU" remark="&#29275;&#26085;asdf" doc:name="Wechat nameRemark"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
