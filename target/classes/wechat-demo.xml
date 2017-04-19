@@ -10,7 +10,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="80" doc:name="HTTP Listener Configuration"/>
-    <wechat:config-wechat name="Wechat__Configuration" appId="wxfe5a12752cf1a533" appSecret="53d5315df2cc1da8dec0a4a19505d9af" token="weiphp" doc:name="Wechat: Configuration" selfManageAccessToken="true"/>
+    <wechat:config-wechat name="Wechat__Configuration" appId="wxfe5a12752cf1a533" appSecret="53d5315df2cc1da8dec0a4a19505d9af" token="weiphp" doc:name="Wechat: Configuration" />
     <http:request-config name="HTTP_Request_Configuration" protocol="HTTPS" host="api.weixin.qq.com" port="443" doc:name="HTTP Request Configuration"/>
     <flow name="wechat-autoReplyEncryptedMessages">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/msg" doc:name="HTTP"/>
