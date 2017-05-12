@@ -21,7 +21,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
             </when>
             <otherwise>
                 <wechat:message-decryption config-ref="Wechat__Configuration" doc:name="Wechat messageDecryption" encodingAesKey="ig7gFVnrXDaK5koZooBGCeysMSGI8H34PKeybRQ96pe" />
-                <logger message="#[payload]#" level="INFO" doc:name="Keyword Matching"/>
+                <logger message="Decryted Msg: #[payload]" level="INFO" doc:name="Keyword Matching"/>
                 <dw:transform-message doc:name="Transform Message">
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
@@ -38,9 +38,14 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 }]]></dw:set-payload>
                 </dw:transform-message>
                 <wechat:message-encrytion config-ref="Wechat__Configuration" encodingAesKey="ig7gFVnrXDaK5koZooBGCeysMSGI8H34PKeybRQ96pe" doc:name="Wechat messageEncrytion"/>
-                <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+                <logger message="Send Msg: #[payload]" level="INFO" doc:name="Logger"/>
             </otherwise>
         </choice>
+    </flow>
+    <flow name="wechat-previewBroadcastText">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/preview" doc:name="HTTP"/>
+        <wechat:preview-broadcast-text config-ref="Wechat__Configuration" content="Preview Content" toUser="oRwGLwz_vjiN-rogxjjUoSzfPzWs" doc:name="Wechat previewBroadcastText"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
     </flow>
     <flow name="wechat-openIdListBroadcastText">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/broadcast" doc:name="HTTP"/>
@@ -75,7 +80,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     </flow>
     <flow name="wechat-nameRemark">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/remark" doc:name="HTTP"/>
-        <wechat:name-remark config-ref="Wechat__Configuration" openId="oU1fjv6xniBQRFYJN-v32bXyaAoU" remark="&#29275;&#26085;asdf" doc:name="Wechat nameRemark"/>
+        <wechat:name-remark config-ref="Wechat__Configuration" openId="oRwGLwz_vjiN-rogxjjUoSzfPzWs" remark="&#29275;&#26085;asdf" doc:name="Wechat nameRemark"/>
         <logger message="#[payload]" level="INFO" doc:name="Logger"/>
     </flow>
 </mule>
