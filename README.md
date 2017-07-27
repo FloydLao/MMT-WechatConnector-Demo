@@ -18,4 +18,10 @@ To be able to successfully run this application, this config values must be set 
     -Token: Token set by the developer on the WeChat Official Account Admin Platform
 
 Usage:
-Once mule is up and running you must call http://localhost:8081/followerList for the app to return list of followers.
+If AppID and AppSecret is valid. By default, once mule is up and running, Wecaht connector will use AppID and AppSecret to retrieve a access token from Wechat. And Wechat connector will automatically refresh the access token for you every 110 minutes.
+
+* Example:org.mule.api.processor.LoggerMessageProcessor:Aq7uRMiulTly...
+
+And then you can call http://localhost:8081/followerList for the app to return list of followers.
+
+* Example:org.mule.api.processor.LoggerMessageProcessor:{total=994...
