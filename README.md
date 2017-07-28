@@ -4,15 +4,15 @@ Wechat Connector Demo Application
 Description:
 Based on the user URL input this demo application performs the following -
 
-* /msg - URL verify and follower send message.
-* /followerList - Get list of followers.
-* /broadcast - Send Wechat openIdListBroadcastText to list of follower.
+* /msg - URL verify from wehcat and receive follower's message.
+* /followerList - Get list of followers' openID.
+* /broadcast - Send text broadcast to list of follower.
 * /file - Upload image.
-* /profile - Get follower profile.
+* /profile - Get follower's profile.
 * /remark - Change follower remark.
 
 
-To be able to successfully run this application, this config values must be set in /src/main/app/mule-app.properties:
+To be able to successfully run this application, this config values must be set in ./src/main/app/mule-app.properties:
     -AppID: The unique certificate of wechat official account
     -AppSecret: The key of wechat official account's certificate
     -Token: Token set by the developer on the WeChat Official Account Admin Platform
@@ -22,6 +22,22 @@ If AppID and AppSecret is valid. By default, once mule is up and running, Wecaht
 
 * Example:org.mule.api.processor.LoggerMessageProcessor:Aq7uRMiulTly...
 
-And then you can call http://localhost:8081/followerList for the app to return list of followers.
+Call http://localhost:8081/followerList for the app to return list of followers' openID.
 
-* Example:org.mule.api.processor.LoggerMessageProcessor:{total=994...
+* Example:{"total"=994,"data":{"openid":[OpenID array]},"count":994,"next_openid":"oRwGLw0xokgCcTaSUTvfa_OdPKBY"}
+
+Call http://localhost:8081/broadcast to send text broadcast to list of follower.
+
+* Example:{"errcode":0,"errmsg":"send job submission success","msg_id":3147484619}
+
+Use ./sample/UploadFile.html to send ./sample/thumb.jpg to http://localhost:8081/file.
+
+* Example:{"media_id":"t6Spy...","url":"http://mmbiz.qpic.cn/mmbiz_jpg/.../0?wx_fmt=jpeg"}
+
+Call http://localhost:8081/profile to get follower's profile.
+
+* Example:{"country":"xx","subscribe":1,"city":"xx","openid":"oRwGLwz_vjiN-rogxjjUoSzfPzWs","tagid_list":[255]...}
+
+Call http://localhost:8081/remark to change a follower's remark.
+
+* Example:{"errcode":0,"errmsg":"ok"}
